@@ -156,3 +156,21 @@ class MAX30102():
                 count -= 1
 
         return red_buf, ir_buf
+    
+    def read_temperature(self):
+        """
+        Initiates a temperature measurement and returns the result in °C.
+        """
+        # Trigger temperature measurement
+        self.bus.write_byte_data(self.address, REG_TEMP_CONFIG, 0x01)
+        # Read temperature integer and fractional registers
+        temp_int = self.bus.read_byte_data(self.address, REG_TEMP_INTR)
+        temp_frac = self.bus.read_byte_data(self.address, REG_TEMP_FRAC)
+
+        # Convert to signed int (two's complement)
+        if temp_int > 127:
+            temp_int -= 256
+
+        temperature = temp_int + (temp_frac * 0.0625)
+        return temperature
+
